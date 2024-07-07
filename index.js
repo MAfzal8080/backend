@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const auth = require('./middleware')
+var nodemailer = require('nodemailer');
 
 require('dotenv').config();
 
@@ -88,6 +89,46 @@ app.post('/query', async (req, res)=>{
     })
     console.log(req.body);
     await info.save()
+    var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'mohd.afzal.278610@gmail.com',
+        pass: 'ykhgeeyvepvjwpcu'
+      }
+  });
+  var mailOptions = {
+      from: 'mohd.afzal.278610@gmail.com',
+      to: req.body.email,
+      subject: 'Thank you',
+      text: 'Thank you for visiting out website. Your query have been send successfully. Our team will contact you in no time. Have a nice day.'
+    };
+
+    var mailOptiondev = {
+      from: 'mohd.afzal.278610@gmail.com',
+      to: 'moafzalhd786@gmail.com',
+      subject: 'New query from portfolio',
+      text: `Hello, ${req.body.name} was trying to contact to you. Email - ${req.body.email}, Mobile number - ${req.body.mobile}, Message - ${req.body.message}.`
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+        res.send(error).status(400);
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.send("Mail sent successfully.").status(200);
+      }
+    });
+
+    transporter.sendMail(mailOptiondev, function(error, info){
+      if (error) {
+        console.log(error);
+        res.send(error).status(400);
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.send("Mail sent successfully.").status(200);
+      }
+    });
     res.status(201).json({message: "Your Query has been submitted successfully."})
   } catch (error) {
     res.status(201).json({message: "Unable to send you query."});
@@ -101,6 +142,32 @@ app.post('/getquery', auth, async(req, res)=>{
   } catch (error) {
     console.log(error);
   }
+});
+
+app.get('/mailSend', async (req, res)=>{
+  var transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'mohd.afzal.278610@gmail.com',
+        pass: 'ykhgeeyvepvjwpcu'
+      }
+  });
+  var mailOptions = {
+      from: 'mohd.afzal.278610@gmail.com',
+      to: 'moafzalhd786@gmail.com',
+      subject: 'Sending Email using Node.js',
+      text: 'That was easy!'
+    };
+
+    transporter.sendMail(mailOptions, function(error, info){
+      if (error) {
+        console.log(error);
+        res.send(error).status(400);
+      } else {
+        console.log('Email sent: ' + info.response);
+        res.send("Mail sent successfully.").status(200);
+      }
+    });
 });
 
 app.listen(port, () => {
